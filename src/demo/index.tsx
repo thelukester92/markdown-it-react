@@ -13,7 +13,6 @@ Features:
 Have fun!
 `;
 
-// todo: use webpack instead of react-scripts
 // todo: wrap this up in a playground-type thing with a textarea input and render button
 
 const root = createRoot(document.getElementById('root')!);
