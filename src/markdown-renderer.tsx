@@ -230,7 +230,9 @@ export type RenderRule = (Tag: ElementType, attrs: Record<string, any> | undefin
 
 const defaultRenderRules: typeof Renderer.prototype.renderRules = {};
 
-const defaultTokenHandlerRules: typeof Renderer.prototype.tokenHandlerRules = {};
+const defaultTokenHandlerRules: typeof Renderer.prototype.tokenHandlerRules = {
+    softbreak: (_tokens, _idx, env) => env.pushRendered(' '),
+};
 
 const defaultTags: typeof Renderer.prototype.tags = {
     text: Fragment,
