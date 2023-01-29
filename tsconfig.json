@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "esModuleInterop": true,
+    "lib": ["dom", "es2020"],
+    "module": "commonjs",
+    "strictNullChecks": true,
+    "target": "ES2020",
+    "outDir": "build"
+  },
+  "include": ["src"]
+}
