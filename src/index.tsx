@@ -1,6 +1,5 @@
-import MarkdownIt from 'markdown-it';
 import { createRoot } from 'react-dom/client';
-import { Renderer } from './markdown-it-react';
+import { MarkdownWrapper } from './markdown-wrapper';
 
 const rawMarkdown = `
 # Markdown-It React
@@ -13,11 +12,7 @@ Features:
 Have fun!
 `;
 
-const md = new MarkdownIt();
-const tokens = md.parse(rawMarkdown, {});
-const rendered = new Renderer().render(tokens);
-
 // todo: wrap this up in a playground-type thing with a textarea input and render button
 
 const root = createRoot(document.getElementById('root')!);
-root.render(rendered);
+root.render(<MarkdownWrapper>{rawMarkdown}</MarkdownWrapper>);
