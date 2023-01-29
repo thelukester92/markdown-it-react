@@ -3,8 +3,7 @@ extends:
   - 'plugin:@typescript-eslint/recommended'
 ignorePatterns:
   - public
-  - webpack.sw.config.js
-  - src/setupProxy.js
+  - webpack.config.js
 parser: '@typescript-eslint/parser'
 plugins:
   - '@typescript-eslint'

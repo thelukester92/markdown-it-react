@@ -1,3 +1,4 @@
+import { ImbalancedTagsError, UnknownTokenTypeError } from './errors';
 import {
     Renderer,
     RendererEnv,
@@ -7,4 +8,4 @@ import {
     TokenHandlerRule,
 } from './markdown-renderer';
 
-export { Renderer, RendererEnv, RendererEnvStackEntry, RendererOpts, RenderRule, TokenHandlerRule };
+export { ImbalancedTagsError, Renderer, RendererEnv, RendererEnvStackEntry, RendererOpts, RenderRule, TokenHandlerRule, UnknownTokenTypeError };

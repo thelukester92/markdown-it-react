@@ -5,6 +5,7 @@ const rawMarkdown = `
 # Markdown-It React
 
 A better way to render markdown in React, without _dangerouslySetInnerHtml_.
+MIT Licensed.
 Features:
 
 * **Extensible**, so that you can insert custom _ElementTypes_, such as using _Link_ instead of the default _a_.
