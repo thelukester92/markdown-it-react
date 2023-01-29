@@ -1,7 +1,5 @@
 markdown-it-react
 
-Note: This repo is incomplete! Check back later when it is published on npm.
-
 A better way to render markdown in React, without `dangerouslySetInnerHtml`.
 Features:
 
@@ -9,7 +7,13 @@ Features:
 
 Have fun!
 
+## Installation
+
+```
+yarn add @thelukester92/markdown-it-react
+npm install @thelukester92/markdown-it-react
+```
+
 ## Todos
 
-* Add a `<Markdown />` element that renders text children using this renderer
 * Add a reverse process (e.g. render tokens back to markdown), perhaps in a separate package
