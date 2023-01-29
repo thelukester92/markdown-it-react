@@ -7,5 +7,16 @@ import {
     RenderRule,
     TokenHandlerRule,
 } from './markdown-renderer';
+import { MarkdownWrapper } from './markdown-wrapper';
 
-export { ImbalancedTagsError, Renderer, RendererEnv, RendererEnvStackEntry, RendererOpts, RenderRule, TokenHandlerRule, UnknownTokenTypeError };
+export {
+    ImbalancedTagsError,
+    MarkdownWrapper,
+    Renderer,
+    RendererEnv,
+    RendererEnvStackEntry,
+    RendererOpts,
+    RenderRule,
+    TokenHandlerRule,
+    UnknownTokenTypeError,
+};
