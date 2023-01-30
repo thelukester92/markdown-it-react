@@ -150,23 +150,22 @@ export class Renderer {
 
     /** Render inline tokens. */
     renderInline(tokens: Token[], env: RendererEnv): ReactNode {
-        return tokens.map((token, i) => {
+        const children = tokens.map((token, i) => {
             const rule = this.tokenHandlerRules[token.type];
-            const node = rule ? rule(tokens, i, env) : this.handleToken(tokens, i, env);
-            return <Fragment key={i}>{node}</Fragment>;
+            return rule ? rule(tokens, i, env) : this.handleToken(tokens, i, env);
         });
+        return this.wrapChildren(children);
     }
 
     /** Render block tokens. */
     render(tokens: Token[]): ReactNode {
         const env = new RendererEnv();
-        return tokens.map((token, i) => {
-            const node =
-                token.type === 'inline'
-                    ? this.renderInline(token.children ?? [], env)
-                    : this.tokenHandlerRules[token.type]?.(tokens, i, env) ?? this.handleToken(tokens, i, env);
-            return <Fragment key={i}>{node}</Fragment>;
-        });
+        const children = tokens.map((token, i) =>
+            token.type === 'inline'
+                ? this.renderInline(token.children ?? [], env)
+                : this.tokenHandlerRules[token.type]?.(tokens, i, env) ?? this.handleToken(tokens, i, env),
+        );
+        return this.wrapChildren(children);
     }
 
     /** Render block tokens to raw html. */
@@ -174,9 +173,11 @@ export class Renderer {
         return renderToStaticMarkup(<>{this.render(tokens)}</>);
     }
 
-    /** Add keys (via Fragment) to children. */
+    /** Add keys (via Fragment) to children and filter null/empty children. */
     private wrapChildren(children: ReactNode[]): ReactNode[] {
-        return children.map((child, i) => <Fragment key={i}>{child}</Fragment>);
+        return children
+            .filter(child => child !== null && (!Array.isArray(child) || child.length))
+            .map((child, i) => <Fragment key={i}>{child}</Fragment>);
     }
 }
 
