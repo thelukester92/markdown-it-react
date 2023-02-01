@@ -119,7 +119,7 @@ export class Renderer {
 
     /**
      * The default token handler, which manages the internal stack.
-     * Uses the default `renderTag` if there is no special rule based on the token type.
+     * Uses the default `renderToken` if there is no special rule based on the token type.
      */
     handleToken(tokens: Token[], idx: number, env: RendererEnv): ReactNode {
         const token = tokens[idx];

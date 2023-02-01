@@ -13,7 +13,3 @@ Have fun!
 yarn add @thelukester92/markdown-it-react
 npm install @thelukester92/markdown-it-react
 ```
-
-## Todos
-
-* Add a reverse process (e.g. render tokens back to markdown), perhaps in a separate package
