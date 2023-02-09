@@ -2,6 +2,7 @@ import Token from 'markdown-it/lib/token';
 import { ElementType, Fragment, ReactNode } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { ImbalancedTagsError, UnknownTokenTypeError } from './errors';
+import { cssStringToReactStyle } from './utils';
 
 export interface RendererOpts {
     /**
@@ -52,6 +53,13 @@ export interface RendererOpts {
  * renders when the closing token is reached (or all at once, for self-closing tokens).
  */
 export class Renderer {
+    /**
+     * Whether to map to react-friendly keys/values in token attrs.
+     * Specifically, this maps the key `class` to `className` and replaces
+     * the `style` value with a record instead of a string value.
+     */
+    remapAttrsForReact = true;
+
     /**
      * Rules for rendering a tag popped off the stack a self-closing tag.
      * The keys are equal to `token.tag`.
@@ -104,9 +112,18 @@ export class Renderer {
         return this.tags[token.type] ?? (token.tag as ElementType);
     }
 
-    /** Render token attributes to a record. */
+    /** Render token attributes to a React-friendly record. */
     renderAttrs(token: Token): Record<string, any> | undefined {
-        return token.attrs?.reduce((acc, [key, value]) => {
+        return token.attrs?.reduce((acc, attr) => {
+            let [key, value]: [string, any] = attr;
+            if (this.remapAttrsForReact) {
+                if (key === 'class') {
+                    key = 'className';
+                }
+                if (key === 'style') {
+                    value = cssStringToReactStyle(value);
+                }
+            }
             acc[key] = value;
             return acc;
         }, {} as Record<string, any>);
