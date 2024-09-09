@@ -101,10 +101,17 @@ export class Renderer {
    */
   tags: Record<string, ElementType | undefined>;
 
+  /** An available rule that stores token markup in generated HTML as a `data-markup` attribute. */
+  preserveMarkupRule: TokenHandlerRule = (tokens, idx, env) => {
+    tokens[idx].attrs ??= [];
+    tokens[idx].attrs!.push(['data-markup', tokens[idx].markup]);
+    return this.handleToken(tokens, idx, env);
+  };
+
   constructor(opts?: RendererOpts) {
-    this.renderRules = { ...defaultRenderRules, ...opts?.renderRules };
-    this.tokenHandlerRules = { ...defaultTokenHandlerRules, ...opts?.tokenHandlerRules };
-    this.tags = { ...defaultTags, ...opts?.tags };
+    this.renderRules = { ...defaultRenderRules(this), ...opts?.renderRules };
+    this.tokenHandlerRules = { ...defaultTokenHandlerRules(this), ...opts?.tokenHandlerRules };
+    this.tags = { ...defaultTags(this), ...opts?.tags };
   }
 
   /** Determine the element type based on `tags`, falling back to `token.tag`. */
@@ -246,12 +253,27 @@ export type TokenHandlerRule = (tokens: Token[], idx: number, env: RendererEnv) 
 /** The render rule for a tag popped off the stack, or for a self-closing tag. */
 export type RenderRule = (Tag: ElementType, attrs: Record<string, any> | undefined, children: ReactNode[]) => ReactNode;
 
-const defaultRenderRules: typeof Renderer.prototype.renderRules = {};
+/** Create a token handler rule that preserves markup in the rendered HTML. */
+export const createPreserveMarkupRule =
+  (renderer: Renderer): TokenHandlerRule =>
+  (tokens, idx, env) => {
+    tokens[idx].attrs ??= [];
+    tokens[idx].attrs!.push(['data-markup', tokens[idx].markup]);
+    return renderer.handleToken(tokens, idx, env);
+  };
 
-const defaultTokenHandlerRules: typeof Renderer.prototype.tokenHandlerRules = {
-  softbreak: (_tokens, _idx, env) => env.pushRendered(' '),
-};
+const defaultRenderRules: (renderer: Renderer) => typeof Renderer.prototype.renderRules = () => ({});
 
-const defaultTags: typeof Renderer.prototype.tags = {
+const defaultTokenHandlerRules: (renderer: Renderer) => typeof Renderer.prototype.tokenHandlerRules = renderer => ({
+  softbreak: (tokens, idx, env) => {
+    tokens[idx].attrs ??= [];
+    tokens[idx].attrs!.push(['data-softbreak', 'true']);
+    return renderer.handleToken(tokens, idx, env);
+  },
+  em_open: renderer.preserveMarkupRule,
+  strong_open: renderer.preserveMarkupRule,
+});
+
+const defaultTags: (renderer: Renderer) => typeof Renderer.prototype.tags = () => ({
   text: Fragment,
-};
+});
