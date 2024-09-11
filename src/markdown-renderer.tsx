@@ -1,8 +1,10 @@
 import Token from 'markdown-it/lib/token';
 import { ElementType, Fragment, ReactNode } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { ImbalancedTagsError, UnknownTokenTypeError } from './errors';
-import { cssStringToReactStyle } from './utils';
+import { UnknownTokenTypeError } from './errors';
+import { RendererEnv, RendererEnvStackEntry } from './renderer-env';
+import { RenderRule, TokenHandlerRule } from './types';
+import { cssStringToReactStyle, getTextContent } from './utils';
 
 export interface RendererOpts {
   /**
@@ -205,64 +207,16 @@ export class Renderer {
   }
 }
 
-/**
- * A helper class for managing the rendering stack.
- * When a tag is pushed, a new `children` buffer is started.
- * When a tag is popped, the top element is rendered.
- * If there is another `children` buffer, the rendered element is sent there.
- * If there is not, the rendered element is returned to the caller.
- */
-export class RendererEnv {
-  /** The current renderer stack (the last element corresponds with the parent element). */
-  private stack: RendererEnvStackEntry[] = [];
-
-  /** Pushes an open tag to the stack, creating a new `children` buffer. */
-  pushTag(Tag: ElementType, attrs?: RendererEnvStackEntry['attrs']): null {
-    this.stack.push({ Tag, attrs, children: [] });
-    return null;
-  }
-
-  /** Pops the open tag from the stack for rendering. */
-  popTag(Tag: ElementType): RendererEnvStackEntry {
-    const top = this.stack.pop();
-    if (!top || top.Tag !== Tag) {
-      throw new ImbalancedTagsError(top?.Tag, Tag);
+const defaultRenderRules: (renderer: Renderer) => typeof Renderer.prototype.renderRules = () => ({
+  img: (Tag, attrs, children) => {
+    // by default, MarkdownIt returns alt text as children instead of attrs, so handle that case here
+    attrs ??= {};
+    if (!attrs.alt) {
+      attrs.alt = getTextContent(children);
     }
-    return top;
-  }
-
-  /** Push a rendered ReactNode into the current `children` buffer and return null, or return it if top-level. */
-  pushRendered(node: ReactNode): ReactNode {
-    if (this.stack.length) {
-      this.stack[this.stack.length - 1].children.push(node);
-      return null;
-    }
-    return node;
-  }
-}
-
-export interface RendererEnvStackEntry {
-  Tag: ElementType;
-  attrs?: Record<string, any>;
-  children: ReactNode[];
-}
-
-/** For more fine-grained control over render rules, control at the token level. `RenderRule` is enough in most cases. */
-export type TokenHandlerRule = (tokens: Token[], idx: number, env: RendererEnv) => ReactNode;
-
-/** The render rule for a tag popped off the stack, or for a self-closing tag. */
-export type RenderRule = (Tag: ElementType, attrs: Record<string, any> | undefined, children: ReactNode[]) => ReactNode;
-
-/** Create a token handler rule that preserves markup in the rendered HTML. */
-export const createPreserveMarkupRule =
-  (renderer: Renderer): TokenHandlerRule =>
-  (tokens, idx, env) => {
-    tokens[idx].attrs ??= [];
-    tokens[idx].attrs!.push(['data-markup', tokens[idx].markup]);
-    return renderer.handleToken(tokens, idx, env);
-  };
-
-const defaultRenderRules: (renderer: Renderer) => typeof Renderer.prototype.renderRules = () => ({});
+    return <Tag {...attrs} />;
+  },
+});
 
 const defaultTokenHandlerRules: (renderer: Renderer) => typeof Renderer.prototype.tokenHandlerRules = renderer => ({
   softbreak: (tokens, idx, env) => {
