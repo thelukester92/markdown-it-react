@@ -196,7 +196,16 @@ export class Renderer {
 
   /** Render block tokens to raw html. */
   renderHTML(tokens: Token[]): string {
-    return renderToStaticMarkup(<>{this.render(tokens)}</>);
+    let html = renderToStaticMarkup(<>{this.render(tokens)}</>);
+
+    // strip out added <link rel="preload" /> tags
+    const regex = /^<link rel="preload"[^>]+>/;
+    let match: RegExpMatchArray | null;
+    while ((match = html.match(regex))) {
+      html = html.substring(match[0].length);
+    }
+
+    return html;
   }
 
   /** Add keys (via Fragment) to children and filter null/empty children. */
