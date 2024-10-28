@@ -147,7 +147,7 @@ export class Renderer {
    * The default token handler, which manages the internal stack.
    * Uses the default `renderToken` if there is no special rule based on the token type.
    */
-  handleToken(tokens: Token[], idx: number, env: RendererEnv): ReactNode {
+  defaultHandleToken(tokens: Token[], idx: number, env: RendererEnv): ReactNode {
     const token = tokens[idx];
     const Tag = this.resolveElementType(token);
     if (!Tag) {
@@ -174,23 +174,27 @@ export class Renderer {
     return env.pushRendered(node);
   }
 
+  /** Use either a user-defined token handler or fall back to the default token handler. */
+  handleToken(tokens: Token[], idx: number, env: RendererEnv): ReactNode {
+    const rule = this.tokenHandlerRules[tokens[idx].type];
+    return rule ? rule(tokens, idx, env) : this.defaultHandleToken(tokens, idx, env);
+  }
+
   /** Render inline tokens. */
   renderInline(tokens: Token[], env: RendererEnv): ReactNode {
-    const children = tokens.map((token, i) => {
-      const rule = this.tokenHandlerRules[token.type];
-      return rule ? rule(tokens, i, env) : this.handleToken(tokens, i, env);
-    });
+    const children = tokens.map((_, i) => this.handleToken(tokens, i, env));
     return this.wrapChildren(children);
   }
 
   /** Render block tokens. */
   render(tokens: Token[]): ReactNode {
     const env = new RendererEnv();
-    const children = tokens.map((token, i) =>
-      token.type === 'inline'
-        ? this.renderInline(token.children ?? [], env)
-        : this.tokenHandlerRules[token.type]?.(tokens, i, env) ?? this.handleToken(tokens, i, env),
-    );
+    const children = tokens.map((token, i) => {
+      if (token.type === 'inline') {
+        return this.renderInline(token.children ?? [], env);
+      }
+      return this.handleToken(tokens, i, env);
+    });
     return this.wrapChildren(children);
   }
 
