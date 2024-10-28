@@ -1,6 +1,6 @@
 {
   "name": "@thelukester92/markdown-it-react",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "license": "MIT",
   "author": "Luke Godfrey <lukeben92@gmail.com>",
   "description": "A better way to render markdown in React.",
@@ -9,6 +9,7 @@
   "scripts": {
     "build": "tsc",
     "clean": "rm -rf dist",
+    "format": "prettier --write src",
     "start": "webpack serve"
   },
   "repository": {

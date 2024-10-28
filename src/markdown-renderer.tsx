@@ -107,7 +107,7 @@ export class Renderer {
   preserveMarkupRule: TokenHandlerRule = (tokens, idx, env) => {
     tokens[idx].attrs ??= [];
     tokens[idx].attrs!.push(['data-markup', tokens[idx].markup]);
-    return this.handleToken(tokens, idx, env);
+    return this.defaultHandleToken(tokens, idx, env);
   };
 
   constructor(opts?: RendererOpts) {
@@ -235,7 +235,7 @@ const defaultTokenHandlerRules: (renderer: Renderer) => typeof Renderer.prototyp
   softbreak: (tokens, idx, env) => {
     tokens[idx].attrs ??= [];
     tokens[idx].attrs!.push(['data-softbreak', 'true']);
-    return renderer.handleToken(tokens, idx, env);
+    return renderer.defaultHandleToken(tokens, idx, env);
   },
   em_open: renderer.preserveMarkupRule,
   strong_open: renderer.preserveMarkupRule,
